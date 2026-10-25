@@ -224,7 +224,7 @@ def safe_db_error(exc):
     if code == '42703':
         return 'A database column is missing (42703). Run the included check_tigerdata.py to identify the table.'
     if code == '28P01':
-        return 'Database authentication failed (28P01). Check the locally stored password.'
+        return 'TigerData rejected the database credentials. Replace the full connection URL in Streamlit Secrets with the current service URL, then reboot.'
     if code and code.startswith('08'):
         return f'Network/database connection failed ({code}). Please retry.'
     if isinstance(exc, (ConnectionError, TimeoutError, OSError)):
@@ -232,7 +232,21 @@ def safe_db_error(exc):
     try:
         import psycopg
         if isinstance(exc, psycopg.OperationalError):
-            return 'The database connection failed or timed out. Check the TigerData service and .env.'
+            # Inspect internally, but never display the raw message: it can contain secrets.
+            detail = str(exc).lower()
+            if 'password authentication failed' in detail or 'authentication failed' in detail:
+                return 'TigerData rejected the database credentials. Replace the full connection URL in Streamlit Secrets with the current service URL, then reboot.'
+            if any(marker in detail for marker in ('could not translate host name', 'failed to resolve host', 'name or service not known', 'nodename nor servname')):
+                return 'The TigerData hostname could not be resolved. Check the full service URL in Streamlit Secrets and confirm the service still exists.'
+            if any(marker in detail for marker in ('certificate verify failed', 'ssl error', 'server does not support ssl', 'sslmode')):
+                return 'The secure database connection failed. Use the current TigerData service URL with sslmode=require in Streamlit Secrets.'
+            if 'connection refused' in detail:
+                return 'The database host refused the connection. Check the TigerData service status and the port in its current connection URL.'
+            if 'timeout' in detail or 'timed out' in detail:
+                return 'The TigerData connection timed out. Confirm the service is running and its network rules allow the deployed app to connect.'
+            if 'database' in detail and 'does not exist' in detail:
+                return 'The database name in the service URL does not exist. Copy the complete current connection URL from TigerData.'
+            return 'The hosted app could not connect to TigerData. Check service status, the full URL in Streamlit Secrets, and database network access.' 
     except ImportError:
         pass
     if isinstance(exc, (KeyError, ValueError, TypeError)):
