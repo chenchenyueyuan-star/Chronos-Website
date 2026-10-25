@@ -1,8 +1,9 @@
 """Account-only controls, service lifecycle, and descriptive results."""
 import json
 import os
-from urllib.request import Request, urlopen
-from urllib.error import HTTPError
+from urllib.request import urlopen
+import altair as alt
+import pandas as pd
 import streamlit as st
 from pathlib import Path
 from measurement_store import MeasurementStore
@@ -10,6 +11,39 @@ from measurement_receiver import start_receiver
 from result_report import overview, text_report, readings_csv, gaps, camera_hint
 
 HERE = Path(__file__).resolve().parent
+
+
+def response_chart_rows(samples):
+    names = {'pulse': 'Heart rate (beats/min)', 'breathing': 'Breathing (breaths/min)'}
+    return [
+        {
+            'Playback seconds': sample['playback_seconds'],
+            'Reading': sample['value'],
+            'Measurement': names[sample['metric']],
+        }
+        for sample in samples
+        if sample['metric'] in names and sample['stable']
+        and sample['confidence'] is not None and sample['confidence'] >= 50
+    ]
+
+
+def build_response_chart(rows):
+    return (
+        alt.Chart(pd.DataFrame(rows))
+        .mark_line(point=True)
+        .encode(
+            x=alt.X('Playback seconds:Q', title='Playback seconds'),
+            y=alt.Y('Reading:Q', title=None, scale=alt.Scale(zero=False)),
+            tooltip=[
+                alt.Tooltip('Measurement:N'),
+                alt.Tooltip('Playback seconds:Q', format='.0f'),
+                alt.Tooltip('Reading:Q', format='.1f'),
+            ],
+        )
+        .facet(row=alt.Row('Measurement:N', title=None, header=alt.Header(labelAngle=0)))
+        .resolve_scale(y='independent')
+        .properties(title='Heart rate and breathing during playback')
+    )
 
 
 @st.cache_resource
@@ -26,37 +60,6 @@ def revoke_player():
             services()[0].revoke(config['token'])
         except Exception:
             pass
-
-
-@st.fragment(run_every="2s")
-def live_camera_feedback():
-    config = st.session_state.get('measurement_player')
-    if not config:
-        return
-    request = Request(config['url'] + '/api/status', data=b'{}', method='POST',
-                      headers={'Authorization': 'Bearer ' + config['token'], 'Content-Type': 'application/json'})
-    try:
-        with urlopen(request, timeout=0.8) as response:
-            status = json.load(response)
-    except HTTPError as error:
-        error.close()
-        if error.code == 409:
-            st.caption('Camera is paused. Press Play to collect readings.')
-        return
-    except (OSError, ValueError):
-        return
-    validation = status.get('validation') or {}
-    hint = validation.get('hint')
-    if validation.get('code') and hint:
-        st.info(hint)
-    elif status.get('running'):
-        st.caption('Camera is recording. Keep your face and upper chest in view and hold still.')
-    fps = status.get('accepted_fps')
-    if isinstance(fps, (int, float)) and 0 < fps < 25:
-        st.caption('The camera is still below 25 fps. Improve lighting and close other camera apps.')
-    receiving = [name for name, present in status.get('metrics_seen', {}).items() if present]
-    if receiving:
-        st.caption('Readings received: ' + ', '.join(receiving) + '.')
 
 
 def settings(load_db, save_db):
@@ -85,8 +88,6 @@ def settings(load_db, save_db):
                 st.caption('Monitor ready: camera permission will be requested when you press Play.' if health.get('configured') else 'Add PRESAGE_API_KEY to .env.local and restart with ./run.command.')
             except Exception:
                 st.caption('Monitor is not running. Restart the app using ./run.command.')
-        if enabled:
-            live_camera_feedback()
         st.caption('Allow camera access for Terminal or your launching app in macOS settings when asked. You can turn measurements off at any time.' if os.getenv('CHRONOS_RUNTIME_CAMERA_INPUT') == 'native' else 'Allow camera access in your browser when asked. You can turn measurements off at any time.')
 
 
@@ -104,7 +105,7 @@ def player_config(session, load_db):
         return existing
     revoke_player()
     store, _ = services()
-    metadata = {key: session.get(key) for key in ('title','duration_seconds','folder','database_user_id','database_session_id')}
+    metadata = {key: session.get(key) for key in ('title','duration_seconds','folder')}
     metadata['audio_plan'] = session.get('plan', {})
     token = store.issue_ticket(identity, st.session_state.get('username') or identity, metadata)
     config = {'token': token, 'fingerprint': fingerprint,
@@ -114,7 +115,6 @@ def player_config(session, load_db):
     return config
 
 
-@st.fragment
 def show_results(in_profile=False):
     if not in_profile:
         st.title('My session results')
@@ -124,8 +124,10 @@ def show_results(in_profile=False):
         return
     store, _ = services()
     runs = store.runs_for(identity)
-    # Clicking refresh reruns only this fragment and reloads the queries above.
-    st.button('Refresh results')
+    feedback_history = store.feedback_for_user(identity)
+    feedback_by_run = {entry['run_id']: entry for entry in feedback_history}
+    if st.button('Refresh results'):
+        st.rerun()
     st.caption('These are camera-derived observations during playback, not proof that audio caused a change or a clinical assessment. Early/late comparisons use stable samples with confidence ≥ 50%; missing or low-quality readings are not treated as improvements.')
     if not runs:
         st.info('No measured runs yet. Enable session measurements and play a session with camera permission.')
@@ -143,6 +145,32 @@ def show_results(in_profile=False):
     missed = gaps(result)
     if any(missed.values()):
         st.caption(f"Skipped: {missed['skipped_measurement_batches']} measurement batches · {missed['skipped_camera_frames']} camera frames. Saved readings are preserved.")
+    st.subheader('Physiological response pattern')
+    st.caption('This descriptive view shows stable pulse and breathing readings on separate scales. It is not a stress level, diagnosis, or proof that the audio caused a change.')
+    response_rows = response_chart_rows(result['samples'])
+    if response_rows:
+        response_chart = build_response_chart(response_rows)
+        st.altair_chart(response_chart)
+        change_rows = [
+            {
+                'Measurement': label,
+                'Early-session average': f"{result['summary'][metric]['early_mean']:.1f} {unit}",
+                'Late-session average': f"{result['summary'][metric]['late_mean']:.1f} {unit}",
+                'Observed change': f"{result['summary'][metric]['change']:+.1f} {unit}",
+            }
+            for metric, label, unit in (
+                ('pulse', 'Heart rate', 'beats/min'),
+                ('breathing', 'Breathing rate', 'breaths/min'),
+            )
+            if 'change' in result['summary'][metric]
+        ]
+        if change_rows:
+            st.markdown('**Early-to-late comparison**')
+            st.table(change_rows)
+        else:
+            st.caption('A comparison needs at least 30 seconds of usable readings and three readings in each edge window.')
+    else:
+        st.info('There are not enough stable, high-confidence pulse or breathing readings to show this graph.')
     for metric, unit in [('pulse','beats/min'),('breathing','breaths/min')]:
         summary = result['summary'][metric]
         st.subheader(metric.capitalize())
@@ -150,7 +178,7 @@ def show_results(in_profile=False):
         if 'change' in summary:
             st.table([{'Period':'Early-session average','Value':f"{summary['early_mean']:.1f} {unit}"},{'Period':'Late-session average','Value':f"{summary['late_mean']:.1f} {unit}"},{'Period':'Observed change','Value':f"{summary['change']:+.1f} {unit}"}])
         else:
-            st.caption(('No readings were collected for this measurement.' + (' Presage feedback: ' + camera_hint(result) if camera_hint(result) else '')) if not summary['samples'] else 'Readings were saved, but there are not enough stable readings over time for an early/late comparison.')
+            st.caption('No readings were collected for this measurement.' if not summary['samples'] else 'Readings were saved, but there are not enough stable readings over time for an early/late comparison.')
         rows = [{'Playback seconds':s['playback_seconds'],unit:s['value']} for s in result['samples'] if s['metric']==metric and s['stable'] and s['confidence'] is not None and s['confidence']>=50]
         if rows:
             st.line_chart(rows,x='Playback seconds',y=unit)
@@ -164,6 +192,65 @@ def show_results(in_profile=False):
         st.caption(f'{len(stable_expressions)} stable expression scores saved.')
     else:
         st.caption('No stable facial-expression scores were returned for this run. Check camera permission, framing, and expression access on your Presage plan.')
+    st.markdown('#### Session feedback and future suggestions')
+    current_feedback = feedback_by_run.get(run_id)
+    if result['run']['status'] == 'recording':
+        st.caption('Feedback is available after playback ends or is paused.')
+    else:
+        with st.form(f'session_feedback_{run_id}'):
+            rating = st.radio(
+                'Was this session a good fit for you?',
+                ['Like', 'Dislike'],
+                index=(['like', 'dislike'].index(current_feedback['rating']) if current_feedback else None),
+                horizontal=True,
+                key=f'session_feedback_rating_{run_id}',
+            )
+            note = st.text_area(
+                'Optional note about what you liked or would change',
+                value=current_feedback['note'] if current_feedback else '',
+                max_chars=500,
+                key=f'session_feedback_note_{run_id}',
+            )
+            submitted = st.form_submit_button('Save feedback')
+        if submitted:
+            if rating is None:
+                st.warning('Choose Like or Dislike before saving feedback.')
+            else:
+                store.save_feedback(identity, run_id, rating.lower(), note)
+                current_feedback = {
+                    'rating': rating.lower(),
+                    'note': note,
+                    'metadata': result['run']['metadata'],
+                }
+                st.success('Your feedback was saved for this account.')
+        if current_feedback and current_feedback['rating'] == 'like':
+            liked_plan = json.loads(current_feedback['metadata']).get('audio_plan', {})
+            preferences = liked_plan.get('onboarding_preferences', {}) if isinstance(liked_plan, dict) else {}
+            asmr_preferences = [
+                value.replace('_', ' ')
+                for field, value in preferences.items()
+                if field.startswith('asmr_') and isinstance(value, str)
+            ] if isinstance(preferences, dict) else []
+            observed_changes = [
+                f"{label.lower()} {result['summary'][metric]['change']:+.1f} {unit}"
+                for metric, label, unit in (
+                    ('pulse', 'Heart rate', 'beats/min'),
+                    ('breathing', 'Breathing rate', 'breaths/min'),
+                )
+                if 'change' in result['summary'][metric]
+            ]
+            suggestion = 'You rated this session positively; consider exploring the same declared ASMR preferences'
+            if asmr_preferences:
+                suggestion += ': ' + ', '.join(asmr_preferences)
+            suggestion += '.'
+            response_context = (
+                'Recorded early-to-late changes: ' + ', '.join(observed_changes) + '.'
+                if observed_changes else 'There is not enough data for an early-to-late vital-sign comparison.'
+            )
+            st.info(suggestion + ' ' + response_context)
+            st.caption('This pairs your explicit rating with descriptive measurements only. A whole-session rating cannot identify which sound you preferred, and vital signs do not measure stress or prove the audio caused a change.')
+        elif current_feedback and current_feedback['rating'] == 'dislike':
+            st.caption('This rating applies to the whole session, so it cannot identify which individual sound you would prefer to change.')
     st.divider()
     st.markdown('#### Save these results')
     st.caption('Choose the readable report for a summary, or CSV to inspect individual readings.')

@@ -41,6 +41,11 @@ class MeasurementStore:
                     run_id TEXT NOT NULL, recorded TEXT NOT NULL, kind TEXT NOT NULL,
                     playback_seconds REAL NOT NULL, detail TEXT NOT NULL
                 );
+                CREATE TABLE IF NOT EXISTS feedback (
+                    run_id TEXT PRIMARY KEY, user_id TEXT NOT NULL, rating TEXT NOT NULL
+                        CHECK (rating IN ('like', 'dislike')),
+                    note TEXT NOT NULL, recorded TEXT NOT NULL
+                );
             ''')
         self.path.chmod(0o600)
 
@@ -186,6 +191,30 @@ class MeasurementStore:
         return {'run': dict(row), 'samples': samples, 'events': events, 'summary': summarise(samples),
                 'partial': row['status'] != 'completed',
                 'captured_until_seconds': max([s['playback_seconds'] for s in samples] + [e['playback_seconds'] for e in events] + [0])}
+
+    def save_feedback(self, user_id, run_id, rating, note=''):
+        if rating not in ('like', 'dislike'):
+            raise ValueError('Feedback rating must be like or dislike.')
+        if not isinstance(note, str) or len(note) > 500:
+            raise ValueError('Feedback note must be 500 characters or fewer.')
+        with self.connect() as db:
+            run = db.execute('SELECT id FROM runs WHERE id=? AND user_id=?', (run_id, user_id)).fetchone()
+            if run is None:
+                raise PermissionError('This result is not available for your account.')
+            db.execute('''INSERT INTO feedback VALUES (?, ?, ?, ?, ?)
+                          ON CONFLICT(run_id) DO UPDATE SET
+                          rating=excluded.rating, note=excluded.note, recorded=excluded.recorded''',
+                       (run_id, user_id, rating, note.strip(), utc_now()))
+
+    def feedback_for_user(self, user_id):
+        with self.connect() as db:
+            return [dict(row) for row in db.execute(
+                '''SELECT feedback.run_id, feedback.rating, feedback.note, feedback.recorded,
+                          runs.started, runs.metadata
+                   FROM feedback JOIN runs ON runs.id=feedback.run_id
+                   WHERE feedback.user_id=? AND runs.user_id=?
+                   ORDER BY runs.started DESC''',
+                (user_id, user_id))]
 
 
 def summarise(samples):
