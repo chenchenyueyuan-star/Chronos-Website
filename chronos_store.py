@@ -210,6 +210,8 @@ def session_count(user_id):
 
 def safe_db_error(exc):
     """Human-safe, credential-free status for the app and for support requests."""
+    if not connected():
+        return 'Account database is not configured. Add TIMESCALE_SERVICE_URL to your hosting Secrets or environment variables, then restart the app.'
     code = getattr(exc, 'sqlstate', None)
     if code == '42P01':
         return 'A database table is missing (42P01). Use Retry TigerData connection to initialise tables.'

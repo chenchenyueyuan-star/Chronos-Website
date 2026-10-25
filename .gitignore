@@ -17,3 +17,5 @@ monitoring/node_modules/
 .DS_Store
 .vscode/
 .agents/
+
+.streamlit/secrets.toml

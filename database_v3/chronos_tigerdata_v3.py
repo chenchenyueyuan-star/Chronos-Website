@@ -22,7 +22,7 @@ load_dotenv(ROOT.parent / '.env.local')
 
 
 def connect() -> psycopg.Connection:
-    url = os.getenv('TIMESCALE_SERVICE_URL')
+    url = os.getenv('TIMESCALE_SERVICE_URL') or os.getenv('DATABASE_URL')
     if not url:
         raise RuntimeError('Configure TIMESCALE_SERVICE_URL in your private .env file.')
     return psycopg.connect(url, connect_timeout=10)

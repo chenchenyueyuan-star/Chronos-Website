@@ -28,8 +28,14 @@ st.set_page_config(page_title="Flowy UI App", layout="wide")
 # ==========================================
 
 HERE = Path(__file__).resolve().parent
-load_dotenv(HERE / ".env")
-load_dotenv(HERE / ".env.local", override=True)
+from deployment_config import load_database_secrets
+from streamlit.errors import StreamlitSecretNotFoundError
+try:
+    load_database_secrets(st.secrets)
+except StreamlitSecretNotFoundError:
+    pass  # Local development can use environment variables or .env files.
+load_dotenv(HERE / ".env", override=False)
+load_dotenv(HERE / ".env.local", override=False)
 from account_database import AccountDatabase
 import chronos_store as cloud_store
 from cloud_storage_ui import show_audio_storage
@@ -356,16 +362,18 @@ if not st.session_state.get("signed_up", False):
                     st.error("Enter your username and password, then press Sign In.")
                 else:
                     profile = None
+                    authenticated = False
                     try:
                         with st.spinner("Signing you in…"):
                             profile = account_database().login(login_user, login_pass)
                         if profile:
                             apply_account(profile)
+                            authenticated = True
                         else:
                             st.error("Invalid username or password.")
                     except Exception as error:
                         st.error("Could not sign in. " + cloud_store.safe_db_error(error))
-                    if profile:
+                    if authenticated:
                         st.rerun()
 
         elif st.session_state.auth_view == "Sign Up":
@@ -375,15 +383,23 @@ if not st.session_state.get("signed_up", False):
                 new_pass = st.text_input("Choose a Password", type="password")
                 submit_signup = st.form_submit_button("Sign Up")
 
-                if submit_signup and new_user and new_pass:
+            if submit_signup:
+                if not new_user.strip() or not new_pass:
+                    st.error("Enter a username and password, then press Sign Up.")
+                else:
+                    profile = None
+                    authenticated = False
                     try:
-                        profile = account_database().signup(new_user, new_pass)
+                        with st.spinner("Creating your account…"):
+                            profile = account_database().signup(new_user, new_pass)
                         apply_account(profile)
-                        st.rerun()
+                        authenticated = True
                     except ValueError as error:
                         st.error(str(error))
                     except Exception as error:
-                        st.error(cloud_store.safe_db_error(error))
+                        st.error("Could not create your account. " + cloud_store.safe_db_error(error))
+                    if authenticated:
+                        st.rerun()
 
 # --- STEP 2: FLOWY QUESTIONNAIRE ---
 elif not st.session_state.questionnaire_done:
