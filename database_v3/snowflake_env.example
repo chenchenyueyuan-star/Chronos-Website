@@ -1,0 +1,8 @@
+# These are ONLY placeholder variable names, not live credentials.
+# Add values to your private .env (already git-ignored). Do not commit them.
+SNOWFLAKE_ACCOUNT=
+SNOWFLAKE_USER=
+SNOWFLAKE_PASSWORD=
+SNOWFLAKE_WAREHOUSE=
+SNOWFLAKE_ROLE=
+# The schema uses CHRONOS_ANALYTICS.WELLNESS.

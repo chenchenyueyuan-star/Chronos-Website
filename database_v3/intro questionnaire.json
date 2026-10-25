@@ -1,0 +1,626 @@
+{
+  "metadata": {
+    "title": "Chronos — Your relaxation preferences",
+    "version": "6.0",
+    "question_count": 20,
+    "answer_format": "A or B only",
+    "intro": "Tell us the styles, atmospheres and kinds of content you tend to enjoy. Choose what feels closer to your taste; you will decide what to use in each session later.",
+    "disclaimer": "Chronos is a wellness tool, not a clinical assessment or treatment.",
+    "validation_status": "Research-informed, not a validated questionnaire. No predictive accuracy, personality classification or clinical effectiveness is claimed.",
+    "source_numbering": "R numbers refer to the preceding 30-paper reading list.",
+    "limitations": [
+      "Narrator gender, accent, pitch and exact voice-to-silence ratios are not validated matching criteria in these sources.",
+      "Evidence from audiovisual ASMR does not automatically generalise to audio-only AI narration.",
+      "Positive preference does not establish relaxation or sleep benefit.",
+      "No fixed 5- or 10-minute therapeutic dose is established here."
+    ],
+    "logic": [
+      "Narrator and voice delivery selection happen after the questionnaire.",
+      "Explicit exclusions override preferences.",
+      "All 20 questions have exactly A and B options."
+    ],
+    "frequency": "Once at account creation; editable later"
+  },
+  "items": [
+    {
+      "id": "p1",
+      "category": "asmr",
+      "text": "Which ASMR character appeals more?",
+      "presentation": "text_choice",
+      "field": "asmr_character",
+      "options": {
+        "A": {
+          "text": "Soft, flowing textures",
+          "value": "flowing"
+        },
+        "B": {
+          "text": "Light, crisp details",
+          "value": "crisp"
+        }
+      },
+      "basis": {
+        "category": "preference_only",
+        "source_ids": [
+          "R02"
+        ],
+        "rationale": "A broad creative preference. Sources inform the general content area, not the validity of this question or a prediction of effectiveness."
+      }
+    },
+    {
+      "id": "p2",
+      "category": "asmr",
+      "text": "Which ASMR sound family appeals more?",
+      "presentation": "text_choice",
+      "field": "asmr_texture_family",
+      "options": {
+        "A": {
+          "text": "Soft textures, such as brushing or fabric",
+          "value": "soft_textures"
+        },
+        "B": {
+          "text": "Light contact sounds, such as tapping or tracing",
+          "value": "light_contact"
+        }
+      },
+      "basis": {
+        "category": "preference_only",
+        "source_ids": [
+          "R02"
+        ],
+        "rationale": "Sources inform the content area, not the validity of this A/B item or its ability to predict benefit. These are broad preferences and permissions, not clinical classifications."
+      }
+    },
+    {
+      "id": "p3",
+      "category": "asmr",
+      "text": "What kind of ASMR rhythm do you prefer?",
+      "presentation": "text_choice",
+      "field": "asmr_rhythm",
+      "options": {
+        "A": {
+          "text": "A steady, repeating pattern",
+          "value": "repeating"
+        },
+        "B": {
+          "text": "A gently changing pattern",
+          "value": "gently_varied"
+        }
+      },
+      "basis": {
+        "category": "preference_only",
+        "source_ids": [
+          "R02"
+        ],
+        "rationale": "Sources inform the content area, not the validity of this A/B item or its ability to predict benefit. These are broad preferences and permissions, not clinical classifications."
+      }
+    },
+    {
+      "id": "p4",
+      "category": "asmr",
+      "text": "How prominent should ASMR sounds be?",
+      "presentation": "text_choice",
+      "field": "asmr_prominence",
+      "options": {
+        "A": {
+          "text": "Subtle, in the background",
+          "value": "subtle"
+        },
+        "B": {
+          "text": "Clearly noticeable, as a main focus",
+          "value": "foreground"
+        }
+      },
+      "basis": {
+        "category": "preference_only",
+        "source_ids": [
+          "R02",
+          "R07"
+        ],
+        "rationale": "Sources inform the content area, not the validity of this A/B item or its ability to predict benefit. These are broad preferences and permissions, not clinical classifications."
+      }
+    },
+    {
+      "id": "p5",
+      "category": "asmr",
+      "text": "How should ASMR sounds feel in space?",
+      "presentation": "text_choice",
+      "field": "asmr_spatial_style",
+      "options": {
+        "A": {
+          "text": "Close and centred",
+          "value": "centred"
+        },
+        "B": {
+          "text": "Gently moving from side to side",
+          "value": "gentle_movement"
+        }
+      },
+      "basis": {
+        "category": "preference_only",
+        "source_ids": [
+          "R02"
+        ],
+        "rationale": "Sources inform the content area, not the validity of this A/B item or its ability to predict benefit. These are broad preferences and permissions, not clinical classifications."
+      }
+    },
+    {
+      "id": "p6",
+      "category": "asmr",
+      "text": "How much variety would you enjoy in ASMR?",
+      "presentation": "text_choice",
+      "field": "asmr_variety",
+      "options": {
+        "A": {
+          "text": "Stay with one sound family",
+          "value": "single_family"
+        },
+        "B": {
+          "text": "Blend a few compatible sound families",
+          "value": "several_families"
+        }
+      },
+      "basis": {
+        "category": "preference_only",
+        "source_ids": [
+          "R02",
+          "R07"
+        ],
+        "rationale": "Sources inform the content area, not the validity of this A/B item or its ability to predict benefit. These are broad preferences and permissions, not clinical classifications."
+      }
+    },
+    {
+      "id": "p7",
+      "category": "text",
+      "text": "Which narration approach appeals more?",
+      "presentation": "text_choice",
+      "field": "narration_approach",
+      "options": {
+        "A": {
+          "text": "Gentle instructions I can follow",
+          "value": "guided"
+        },
+        "B": {
+          "text": "A calming story or description I can listen to",
+          "value": "descriptive"
+        }
+      },
+      "basis": {
+        "category": "preference_only",
+        "source_ids": [
+          "R21",
+          "R25"
+        ],
+        "rationale": "Sources inform the content area, not the validity of this A/B item or its ability to predict benefit. These are broad preferences and permissions, not clinical classifications."
+      }
+    },
+    {
+      "id": "p8",
+      "category": "text",
+      "text": "What should the narration help me notice?",
+      "presentation": "text_choice",
+      "field": "attention_orientation",
+      "options": {
+        "A": {
+          "text": "Comfort in the present moment",
+          "value": "present"
+        },
+        "B": {
+          "text": "An imagined setting beyond my surroundings",
+          "value": "imagined"
+        }
+      },
+      "basis": {
+        "category": "preference_only",
+        "source_ids": [
+          "R21",
+          "R22",
+          "R25"
+        ],
+        "rationale": "Sources inform the content area, not the validity of this A/B item or its ability to predict benefit. These are broad preferences and permissions, not clinical classifications."
+      }
+    },
+    {
+      "id": "p9",
+      "category": "text",
+      "text": "Which wording feels more comfortable?",
+      "presentation": "text_choice",
+      "field": "language_style",
+      "options": {
+        "A": {
+          "text": "Plain, everyday language",
+          "value": "plain"
+        },
+        "B": {
+          "text": "Descriptive language and gentle metaphors",
+          "value": "evocative"
+        }
+      },
+      "basis": {
+        "category": "preference_only",
+        "source_ids": [
+          "R21",
+          "R25"
+        ],
+        "rationale": "Sources inform the content area, not the validity of this A/B item or its ability to predict benefit. These are broad preferences and permissions, not clinical classifications."
+      }
+    },
+    {
+      "id": "p10",
+      "category": "text",
+      "text": "How much narration would you usually like?",
+      "presentation": "text_choice",
+      "field": "narration_density",
+      "options": {
+        "A": {
+          "text": "Regular guidance with shorter pauses",
+          "value": "frequent"
+        },
+        "B": {
+          "text": "Occasional narration with longer quiet gaps",
+          "value": "sparse"
+        }
+      },
+      "basis": {
+        "category": "preference_only",
+        "source_ids": [],
+        "rationale": "Sources inform the content area, not the validity of this A/B item or its ability to predict benefit. These are broad preferences and permissions, not clinical classifications."
+      }
+    },
+    {
+      "id": "p11",
+      "category": "text",
+      "text": "How should a session unfold?",
+      "presentation": "text_choice",
+      "field": "narrative_progression",
+      "options": {
+        "A": {
+          "text": "Settle into one theme and stay with it",
+          "value": "steady_theme"
+        },
+        "B": {
+          "text": "Let a theme develop gently over the session",
+          "value": "gradual_development"
+        }
+      },
+      "basis": {
+        "category": "preference_only",
+        "source_ids": [
+          "R25"
+        ],
+        "rationale": "Sources inform the content area, not the validity of this A/B item or its ability to predict benefit. These are broad preferences and permissions, not clinical classifications."
+      }
+    },
+    {
+      "id": "p12",
+      "category": "text",
+      "text": "Which tempo of activity feels more relaxing?",
+      "presentation": "text_choice",
+      "field": "activity_level",
+      "options": {
+        "A": {
+          "text": "Very little happening, with space to settle",
+          "value": "minimal"
+        },
+        "B": {
+          "text": "A gentle sequence that gives my attention something to follow",
+          "value": "gentle_sequence"
+        }
+      },
+      "basis": {
+        "category": "preference_only",
+        "source_ids": [
+          "R21",
+          "R23"
+        ],
+        "rationale": "A broad creative preference. Sources inform the general content area, not the validity of this question or a prediction of effectiveness."
+      }
+    },
+    {
+      "id": "p13",
+      "category": "text",
+      "text": "Which kind of descriptive detail appeals more?",
+      "presentation": "text_choice",
+      "field": "description_focus",
+      "options": {
+        "A": {
+          "text": "Concrete details, such as warmth, texture and light",
+          "value": "concrete"
+        },
+        "B": {
+          "text": "Atmosphere and mood, such as spaciousness and stillness",
+          "value": "atmospheric"
+        }
+      },
+      "basis": {
+        "category": "preference_only",
+        "source_ids": [
+          "R21",
+          "R25"
+        ],
+        "rationale": "A broad creative preference. Sources inform the general content area, not the validity of this question or a prediction of effectiveness."
+      }
+    },
+    {
+      "id": "p14",
+      "category": "text",
+      "text": "Which emotional tone feels more comforting?",
+      "presentation": "text_choice",
+      "field": "emotional_tone",
+      "options": {
+        "A": {
+          "text": "Warm and reassuring",
+          "value": "warm"
+        },
+        "B": {
+          "text": "Quiet and matter-of-fact",
+          "value": "neutral"
+        }
+      },
+      "basis": {
+        "category": "preference_only",
+        "source_ids": [
+          "R21"
+        ],
+        "rationale": "A broad creative preference. Sources inform the general content area, not the validity of this question or a prediction of effectiveness."
+      }
+    },
+    {
+      "id": "p15",
+      "category": "nature",
+      "text": "Which sense of space appeals more?",
+      "presentation": "text_choice",
+      "field": "nature_space",
+      "options": {
+        "A": {
+          "text": "Sheltered and enclosed",
+          "value": "sheltered"
+        },
+        "B": {
+          "text": "Open and expansive",
+          "value": "open"
+        }
+      },
+      "basis": {
+        "category": "preference_only",
+        "source_ids": [
+          "R12"
+        ],
+        "rationale": "A broad creative preference. Sources inform the general content area, not the validity of this question or a prediction of effectiveness."
+      }
+    },
+    {
+      "id": "p16",
+      "category": "nature",
+      "text": "Which broad environment appeals more?",
+      "presentation": "text_choice",
+      "field": "nature_environment_family",
+      "options": {
+        "A": {
+          "text": "Water-based environments",
+          "value": "water"
+        },
+        "B": {
+          "text": "Land-based environments",
+          "value": "land"
+        }
+      },
+      "basis": {
+        "category": "preference_only",
+        "source_ids": [
+          "R11",
+          "R12"
+        ],
+        "rationale": "Sources inform the content area, not the validity of this A/B item or its ability to predict benefit. These are broad preferences and permissions, not clinical classifications."
+      }
+    },
+    {
+      "id": "p17",
+      "category": "nature",
+      "text": "Which sound character feels more comfortable?",
+      "presentation": "text_choice",
+      "field": "nature_event_style",
+      "options": {
+        "A": {
+          "text": "Smooth, continuous sounds",
+          "value": "continuous"
+        },
+        "B": {
+          "text": "Gentle, distinct events within the background",
+          "value": "gentle_events"
+        }
+      },
+      "basis": {
+        "category": "preference_only",
+        "source_ids": [
+          "R12"
+        ],
+        "rationale": "Sources inform the content area, not the validity of this A/B item or its ability to predict benefit. These are broad preferences and permissions, not clinical classifications."
+      }
+    },
+    {
+      "id": "p18",
+      "category": "nature",
+      "text": "How should the environment change over time?",
+      "presentation": "text_choice",
+      "field": "nature_evolution",
+      "options": {
+        "A": {
+          "text": "Keep a consistent atmosphere",
+          "value": "consistent"
+        },
+        "B": {
+          "text": "Let the atmosphere evolve gradually",
+          "value": "gradual"
+        }
+      },
+      "basis": {
+        "category": "preference_only",
+        "source_ids": [
+          "R12"
+        ],
+        "rationale": "Sources inform the content area, not the validity of this A/B item or its ability to predict benefit. These are broad preferences and permissions, not clinical classifications."
+      }
+    },
+    {
+      "id": "p19",
+      "category": "nature",
+      "text": "How layered should a natural environment feel?",
+      "presentation": "text_choice",
+      "field": "nature_complexity",
+      "options": {
+        "A": {
+          "text": "Simple and spacious",
+          "value": "simple"
+        },
+        "B": {
+          "text": "Rich, with several complementary layers",
+          "value": "layered"
+        }
+      },
+      "basis": {
+        "category": "preference_only",
+        "source_ids": [
+          "R11",
+          "R12"
+        ],
+        "rationale": "Sources inform the content area, not the validity of this A/B item or its ability to predict benefit. These are broad preferences and permissions, not clinical classifications."
+      }
+    },
+    {
+      "id": "p20",
+      "category": "nature",
+      "text": "How much should the environment draw my attention?",
+      "presentation": "text_choice",
+      "field": "nature_prominence",
+      "options": {
+        "A": {
+          "text": "A quiet backdrop I can tune out",
+          "value": "background"
+        },
+        "B": {
+          "text": "An immersive environment I can explore",
+          "value": "immersive"
+        }
+      },
+      "basis": {
+        "category": "preference_only",
+        "source_ids": [
+          "R12"
+        ],
+        "rationale": "Sources inform the content area, not the validity of this A/B item or its ability to predict benefit. These are broad preferences and permissions, not clinical classifications."
+      }
+    }
+  ],
+  "presentation": {
+    "rules": [
+      "All 20 questions are A/B choices, grouped into ASMR, narration and nature sounds.",
+      "Show all questions. Preferences within a disabled category are saved but inactive.",
+      "No narrator or voice-type selection occurs here.",
+      "Audio examples may be added later, matched in volume and changing one feature at a time. Do not imply unavailable samples can be played."
+    ]
+  },
+  "sources": {
+    "R02": {
+      "citation": "Barratt, Spence & Davis (2017). Sensory determinants of the autonomous sensory meridian response (ASMR): understanding the triggers.",
+      "url": "https://doi.org/10.7717/peerj.3846"
+    },
+    "R03": {
+      "citation": "Poerio et al. (2018). More than a feeling: Autonomous sensory meridian response (ASMR) is characterized by reliable changes in affect and physiology.",
+      "url": "https://doi.org/10.1371/journal.pone.0196645"
+    },
+    "R07": {
+      "citation": "Sakurai et al. (2023). The relaxation effect of autonomous sensory meridian response depends on personal preference.",
+      "url": "https://doi.org/10.3389/fnhum.2023.1249176"
+    },
+    "R10": {
+      "citation": "Hozaki et al. (2025). More relaxing than nature? The impact of ASMR content on psychological and physiological measures of parasympathetic activity.",
+      "url": "https://doi.org/10.1093/nc/niaf012"
+    },
+    "R11": {
+      "citation": "Buxton et al. (2021). A synthesis of health benefits of natural sounds and their distribution in national parks.",
+      "url": "https://doi.org/10.1073/pnas.2013097118"
+    },
+    "R12": {
+      "citation": "Ratcliffe (2021). Sound and soundscape in restorative natural environments: A narrative literature review.",
+      "url": "https://doi.org/10.3389/fpsyg.2021.570563"
+    },
+    "R19": {
+      "citation": "Riedy et al. (2021). Noise as a sleep aid: A systematic review.",
+      "url": "https://doi.org/10.1016/j.smrv.2020.101385"
+    },
+    "R21": {
+      "citation": "Toussaint et al. (2021). Effectiveness of Progressive Muscle Relaxation, Deep Breathing, and Guided Imagery in Promoting Psychological and Physiological States of Relaxation.",
+      "url": "https://doi.org/10.1155/2021/5924040"
+    },
+    "R22": {
+      "citation": "Ditto, Eclache & Goldman (2006). Short-term autonomic and cardiovascular effects of mindfulness body scan meditation.",
+      "url": "https://doi.org/10.1207/s15324796abm3203_9"
+    },
+    "R23": {
+      "citation": "Arch & Craske (2006). Mechanisms of mindfulness: Emotion regulation following a focused breathing induction.",
+      "url": "https://doi.org/10.1016/j.brat.2005.12.007"
+    },
+    "R25": {
+      "citation": "Harvey & Payne (2002). The management of unwanted pre-sleep thoughts in insomnia: distraction with imagery versus general distraction.",
+      "url": "https://doi.org/10.1016/S0005-7967(01)00012-2"
+    },
+    "R29": {
+      "citation": "Cordi & Rasch (2021). Systematic decrease of slow-wave sleep after a guided imagery designed to deepen sleep in low hypnotizable subjects.",
+      "url": "https://doi.org/10.1111/jsr.13168"
+    }
+  },
+  "interpretation": {
+    "method": "Store each answer as a broad preference, not a permission, exclusion, diagnosis or fixed personality category.",
+    "rules": [
+      "The account questionnaire never enables or disables ASMR, narration, nature sounds or exercises.",
+      "A preference does not require every session to contain that feature.",
+      "Session-specific choices decide which components and techniques are included.",
+      "Apply broad preferences only to components selected for the current session.",
+      "Keep alternatives broad and permit variation within each preference.",
+      "No technique permission can be inferred from activity level, attention orientation, preferred language or descriptive detail.",
+      "Do not infer voice gender, accent or pitch from these preferences.",
+      "Research informs the available approaches, but this questionnaire is not validated as a predictor of benefit."
+    ]
+  },
+  "post_questionnaire": {
+    "step": "Choose your narrator",
+    "options": [
+      "Male voice 1",
+      "Male voice 2",
+      "Female voice 1",
+      "Female voice 2"
+    ],
+    "instruction": "Present four preview options after completion; save the selected ElevenLabs voice ID separately from questionnaire answers. Voice delivery settings may also be chosen here."
+  },
+  "categories": [
+    {
+      "id": "asmr",
+      "label": "ASMR",
+      "question_count": 6
+    },
+    {
+      "id": "text",
+      "label": "Narration",
+      "question_count": 8
+    },
+    {
+      "id": "nature",
+      "label": "Nature sounds",
+      "question_count": 6
+    }
+  ],
+  "gemini_generation_guidance": {
+    "principle": "Treat choices as broad creative constraints, not scripts or literal scene instructions.",
+    "instructions": [
+      "Vary settings, metaphors, openings, sensory details, structure and phrasing between sessions while respecting stored preferences and current-session exclusions.",
+      "water can include coastlines, streams, lakesides or gentle rain; land can include woodland, meadow, garden or gentle wind. These are examples, not required recurring settings.",
+      "Within an ASMR family, select available licensed sound assets. Do not invent assets or expect text-to-speech to create brushing or tapping reliably.",
+      "Choose techniques only from relevant reviewed evidence cards supplied by the application.",
+      "Use varied neutral narration if no allowed guided technique fits.",
+      "Do not force all 20 preferences into every script; use relevant fields for the selected session.",
+      "Use recent session history to reduce repeated scenes and wording.",
+      "Keep spoken narration separate from pauses, ASMR cues, ambient cues and citations.",
+      "Obtain current-session inclusion choices separately. Onboarding preferences alone never grant permission for breathing, body scans, muscle tensing or other guided exercises."
+    ]
+  }
+}

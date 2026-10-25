@@ -1,0 +1,24 @@
+<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+*{box-sizing:border-box}body{margin:0;background:transparent;color:#fff;font:16px system-ui,sans-serif}
+.picker{position:relative;width:240px;margin:0 auto;background:#172126d9;border:1px solid #ffffff35;border-radius:24px;overflow:hidden}
+#wheel{height:240px;overflow-y:auto;scroll-snap-type:y mandatory;scrollbar-width:none;overscroll-behavior:contain;padding:96px 0;outline:none}
+#wheel::-webkit-scrollbar{display:none}.minute{height:48px;scroll-snap-align:center;display:flex;align-items:center;justify-content:center;gap:10px;color:#ffffff65;font-size:24px;cursor:pointer;position:relative;z-index:2}
+.minute[aria-selected=true]{color:#fff;font-size:32px;font-weight:700}.unit{font-size:14px;font-weight:400}
+.band{position:absolute;left:12px;right:12px;top:96px;height:48px;background:#b3d8c71f;border-top:1px solid #b3d8c777;border-bottom:1px solid #b3d8c777;pointer-events:none}
+.fade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(#172126e0,transparent 40%,transparent 60%,#172126e0);z-index:3}
+.hint{text-align:center;font-size:13px;color:#c9d4ce;margin:10px 0 0}
+</style></head><body>
+<div class="picker"><div class="band"></div><div id="wheel" role="listbox" aria-label="Audio duration in minutes" tabindex="0"></div><div class="fade"></div></div>
+<p class="hint">Scroll or use ↑ ↓ to choose 1–30 minutes</p>
+<script>
+const wheel=document.getElementById('wheel');let selected=10,initialised=false,timer;
+function send(type,data){window.parent.postMessage({isStreamlitMessage:true,type,...data},'*');}
+function paint(n){selected=n;for(const item of wheel.children)item.setAttribute('aria-selected',Number(item.dataset.value)===n?'true':'false');wheel.setAttribute('aria-activedescendant','minute-'+n);}
+function select(n,publish=true){n=Math.max(1,Math.min(30,n));paint(n);wheel.scrollTo({top:(n-1)*48,behavior:'auto'});if(publish)send('streamlit:setComponentValue',{value:n,dataType:'json'});}
+for(let n=1;n<=30;n++){const item=document.createElement('div');item.className='minute';item.id='minute-'+n;item.dataset.value=n;item.setAttribute('role','option');item.innerHTML=n+'<span class="unit">'+(n===1?'minute':'minutes')+'</span>';item.onclick=()=>select(n);wheel.appendChild(item);}
+wheel.onscroll=()=>{if(!initialised)return;clearTimeout(timer);paint(Math.max(1,Math.min(30,Math.round(wheel.scrollTop/48)+1)));timer=setTimeout(()=>send('streamlit:setComponentValue',{value:selected,dataType:'json'}),180);};
+wheel.onkeydown=e=>{if(['ArrowUp','ArrowDown','Home','End'].includes(e.key)){e.preventDefault();select(e.key==='Home'?1:e.key==='End'?30:selected+(e.key==='ArrowUp'?-1:1));}};
+window.addEventListener('message',event=>{if(event.source!==window.parent||event.data.type!=='streamlit:render')return;const n=Number(event.data.args.value)||10;if(!initialised){select(n,false);initialised=true;}send('streamlit:setFrameHeight',{height:280});});
+send('streamlit:componentReady',{apiVersion:1});send('streamlit:setFrameHeight',{height:280});
+</script></body></html>

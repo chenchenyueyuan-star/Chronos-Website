@@ -1,0 +1,1 @@
+{"name":"chronos-session-monitor","version":"1.0.0","private":true,"scripts":{"start":"node server.js","test":"node --test *.test.js"},"dependencies":{"@smartspectra/node-sdk":"3.4.0","ws":"^8.22.0"}}

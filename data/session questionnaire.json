@@ -1,0 +1,199 @@
+{
+  "metadata": {
+    "title": "Chronos — What do you need today?",
+    "version": "2.0",
+    "question_count": 9,
+    "frequency": "Before each session",
+    "intro": "A quick check-in. Your saved preferences are already here.",
+    "disclaimer": "A wellness check-in, not a clinical assessment.",
+    "answer_format": "A or B only"
+  },
+  "items": [
+    {
+      "id": "s1",
+      "text": "What would you like this session for?",
+      "presentation": "text_choice",
+      "field": "goal",
+      "options": {
+        "A": {
+          "text": "Winding down for sleep",
+          "value": "sleep"
+        },
+        "B": {
+          "text": "A calming break during the day",
+          "value": "daytime_relaxation"
+        }
+      },
+      "basis": {
+        "category": "session_choice",
+        "source_ids": [],
+        "rationale": "Current-session setting or explicit choice; not a clinical assessment."
+      }
+    },
+    {
+      "id": "s3",
+      "text": "Would you like ASMR sounds today?",
+      "presentation": "text_choice",
+      "field": "asmr_enabled",
+      "options": {
+        "A": {
+          "text": "Include ASMR",
+          "value": true
+        },
+        "B": {
+          "text": "Leave ASMR out",
+          "value": false
+        }
+      },
+      "basis": {
+        "category": "session_choice",
+        "source_ids": [],
+        "rationale": "Current-session setting or explicit choice; not a clinical assessment."
+      }
+    },
+    {
+      "id": "s4",
+      "text": "Would you like spoken narration today?",
+      "presentation": "text_choice",
+      "field": "narration_enabled",
+      "options": {
+        "A": {
+          "text": "Include narration",
+          "value": true
+        },
+        "B": {
+          "text": "Leave narration out",
+          "value": false
+        }
+      },
+      "basis": {
+        "category": "session_choice",
+        "source_ids": [],
+        "rationale": "Current-session setting or explicit choice; not a clinical assessment."
+      }
+    },
+    {
+      "id": "s5",
+      "text": "Would you like nature sounds today?",
+      "presentation": "text_choice",
+      "field": "nature_enabled",
+      "options": {
+        "A": {
+          "text": "Include nature sounds",
+          "value": true
+        },
+        "B": {
+          "text": "Leave nature sounds out",
+          "value": false
+        }
+      },
+      "basis": {
+        "category": "session_choice",
+        "source_ids": [],
+        "rationale": "Current-session setting or explicit choice; not a clinical assessment."
+      }
+    },
+    {
+      "id": "s6",
+      "text": "Would you like guided breathing today?",
+      "presentation": "text_choice",
+      "field": "breathing_allowed",
+      "options": {
+        "A": {
+          "text": "Optional gentle guidance, without breath holds",
+          "value": true
+        },
+        "B": {
+          "text": "Leave breathing instructions out",
+          "value": false
+        }
+      },
+      "basis": {
+        "category": "session_choice",
+        "source_ids": [],
+        "rationale": "Current-session setting or explicit choice; not a clinical assessment."
+      }
+    },
+    {
+      "id": "s7",
+      "text": "Would you like body-focused guidance today?",
+      "presentation": "text_choice",
+      "field": "body_awareness_allowed",
+      "options": {
+        "A": {
+          "text": "Optional body-awareness guidance",
+          "value": true
+        },
+        "B": {
+          "text": "Leave body-focused guidance out",
+          "value": false
+        }
+      },
+      "basis": {
+        "category": "session_choice",
+        "source_ids": [],
+        "rationale": "Current-session setting or explicit choice; not a clinical assessment."
+      }
+    },
+    {
+      "id": "s8",
+      "text": "Would you like muscle-tensing exercises today?",
+      "presentation": "text_choice",
+      "field": "muscle_tensing_allowed",
+      "options": {
+        "A": {
+          "text": "Optional gentle tensing and releasing",
+          "value": true
+        },
+        "B": {
+          "text": "Leave muscle tensing out",
+          "value": false
+        }
+      },
+      "basis": {
+        "category": "session_choice",
+        "source_ids": [],
+        "rationale": "Current-session setting or explicit choice; not a clinical assessment."
+      }
+    },
+    {
+      "id": "s9",
+      "text": "Would you like guided imaginary scenes today?",
+      "presentation": "text_choice",
+      "field": "imagery_allowed",
+      "options": {
+        "A": {
+          "text": "Include optional imagined scenes",
+          "value": true
+        },
+        "B": {
+          "text": "Leave imaginary scenes out",
+          "value": false
+        }
+      },
+      "basis": {
+        "category": "session_choice",
+        "source_ids": [],
+        "rationale": "Current-session setting or explicit choice; not a clinical assessment."
+      }
+    }
+  ],
+  "merge_rules": [
+    "Load broad onboarding preferences, then apply current-session selections.",
+    "Never treat onboarding preferences as permissions or exclusions.",
+    "Do not overwrite broad account preferences with current-session choices.",
+    "Disabled components produce no corresponding audio layers or spoken content.",
+    "If narration_enabled=false, ignore all spoken exercise permissions and do not call text-to-speech.",
+    "If body_awareness_allowed=false, also disable muscle-tensing exercises.",
+    "If imagery_allowed=false, ignore scene preferences for narration. Nature audio can still play if separately enabled.",
+    "When every audio component is disabled, explain that no audio is selected and let the user revise their choices; do not generate audio.",
+    "Use only compatible techniques from supplied reviewed evidence cards; if none fit, use neutral reassuring narration when narration is enabled.",
+    "Choose narrator separately when narration is enabled.",
+    "These settings remain editable throughout a session."
+  ],
+  "storage": {
+    "onboarding": "user_profile.preferences",
+    "session": "session.context",
+    "merged_input": "computed per session, not persisted as replacement preferences"
+  }
+}

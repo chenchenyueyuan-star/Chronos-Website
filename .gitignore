@@ -1,0 +1,19 @@
+.env.local
+.env
+*-credentials.env
+users_db.json
+__pycache__/
+.venv/
+
+generated_sessions/
+
+private_data/
+monitoring/node_modules/
+
+# Private local data, machine configuration, and key material
+*.p8
+*.pem
+*.key
+.DS_Store
+.vscode/
+.agents/

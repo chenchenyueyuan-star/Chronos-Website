@@ -1,0 +1,41 @@
+{
+  "source": "New folder (2)/server.js",
+  "sha256": "70e4c717fcbf6fb8a99f9b5f386db9ee6386abaa759efbf331ed51097fe52c59",
+  "copied_verbatim": [
+    "appendMeasurements",
+    "trimMetricSamples"
+  ],
+  "adapters": [
+    "API key is passed by the local launcher",
+    "Decoded payloads go to authenticated account storage",
+    "Playback starts/stops capture; recoverable failures are retried",
+    "App requests only pulse rate, breathing rate, and expressions; standalone default bundles remain available",
+    "Local macOS launch uses SDK useCamera at 640x480/30fps; browser input remains selectable",
+    "Enable accumulated output at pause/end and avoid serializing unused landmarks"
+  ],
+  "sections": [
+    {
+      "name": "helpers",
+      "start": "function appendMeasurements(",
+      "end": "const sdk = new SmartSpectraSDK",
+      "sha256": "b51ede743d072403e40aea9e877379efc7441514502c3dd83603d404c698b649"
+    },
+    {
+      "name": "stop_lifecycle",
+      "start": "let stopPromise = null;",
+      "end": "selectInput();\nsdk.on(\"processingStatus\"",
+      "sha256": "6a7f6b29d0e10ef0642b4fb23dcf931f1779a70b34e11f29d8c69c67660cf60e",
+      "normalize_input_selection": true
+    }
+  ],
+  "adapted_sections": [
+    {
+      "name": "handlers",
+      "start": "selectInput();\nsdk.on(\"processingStatus\"",
+      "end": "async function forwardMetrics(payload)",
+      "sha256": "6ca3117afb61b6aee599f9381790cd4c9f60e823650bc3061d66e29822e88859",
+      "normalize_input_selection": true,
+      "reason": "Decode only the displayed streams and consume both continuous and final accumulated metrics"
+    }
+  ]
+}
