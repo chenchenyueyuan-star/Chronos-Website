@@ -2,7 +2,7 @@ import streamlit as st
 import json
 import os
 import time
-import base64
+# import base64  # Google authentication is disabled.
 import hashlib
 from uuid import uuid4
 import streamlit.components.v1 as components
@@ -13,12 +13,13 @@ import measurement_ui
 from pathlib import Path
 from html import escape
 from dotenv import load_dotenv
-try:
-    import extra_streamlit_components as stx
-    from streamlit_oauth import OAuth2Component
-except ImportError:
-    stx = None
-    OAuth2Component = None
+# Google authentication is intentionally disabled; retain for later use.
+# try:
+#     import extra_streamlit_components as stx
+#     from streamlit_oauth import OAuth2Component
+# except ImportError:
+#     stx = None
+#     OAuth2Component = None
 
 st.set_page_config(page_title="Flowy UI App", layout="wide")
 
@@ -32,12 +33,12 @@ load_dotenv(HERE / ".env.local", override=True)
 from account_database import AccountDatabase
 import chronos_store as cloud_store
 from cloud_storage_ui import show_audio_storage
-CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
-CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
+# CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
+# CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
 
-AUTHORIZE_URL = "https://accounts.google.com/o/oauth2/v2/auth"
-TOKEN_URL = "https://oauth2.googleapis.com/token"
-REVOKE_TOKEN_URL = "https://oauth2.googleapis.com/revoke"
+# AUTHORIZE_URL = "https://accounts.google.com/o/oauth2/v2/auth"
+# TOKEN_URL = "https://oauth2.googleapis.com/token"
+# REVOKE_TOKEN_URL = "https://oauth2.googleapis.com/revoke"
 
 def account_database():
     if "account_database" not in st.session_state:
@@ -252,11 +253,10 @@ st.markdown(
 # --- STEP 1: COMBINED AUTHENTICATION ---
 if not st.session_state.get("signed_up", False):
 
-    # ---------------------------------------------------------
-    # MAKE GOOGLE LOGIN THE ABSOLUTE DEFAULT
-    # ---------------------------------------------------------
-    if "auth_view" not in st.session_state:
-        st.session_state.auth_view = "Google Login"
+    # Username/password authentication is the default, including existing tabs
+    # whose session state still points to the disabled Google view.
+    if st.session_state.get("auth_view") not in ("Sign In", "Sign Up"):
+        st.session_state.auth_view = "Sign In"
 
     step1_css = """
     <style>
@@ -283,9 +283,9 @@ if not st.session_state.get("signed_up", False):
 
     with menu_col:
         st.markdown('<div class="nav-col">', unsafe_allow_html=True)
-        # Reordered so Google is the top option visually
-        if st.button("🌐 Google Login", use_container_width=True):
-            st.session_state.auth_view = "Google Login"
+        # Google sign-in is disabled.
+        # if st.button("🌐 Google Login", use_container_width=True):
+        #     st.session_state.auth_view = "Google Login"
         if st.button("🔑 Sign In", use_container_width=True):
             st.session_state.auth_view = "Sign In"
         if st.button("📝 Sign Up", use_container_width=True):
@@ -293,58 +293,58 @@ if not st.session_state.get("signed_up", False):
         st.markdown('</div>', unsafe_allow_html=True)
 
     with content_col:
-        if st.session_state.auth_view == "Google Login":
-            st.subheader("Google Login")
-            st.write("Sign in securely with your Google account:")
-
-            if not CLIENT_ID or not CLIENT_SECRET or OAuth2Component is None:
-                pass  # Keep configuration details off the welcome page.
-            else:
-                try:
-                    # Because this is now the default view, it will ALWAYS run when Google redirects back!
-                    oauth2 = OAuth2Component(CLIENT_ID, CLIENT_SECRET, AUTHORIZE_URL, TOKEN_URL, TOKEN_URL, REVOKE_TOKEN_URL)
-
-                    result = oauth2.authorize_button(
-                        name="Sign in with Google",
-                        icon="https://www.google.com/favicon.ico",
-                        redirect_uri="http://localhost:8501",
-                        scope="openid email profile",
-                        key="google_login",
-                        use_container_width=True
-                    )
-
-                    if result and "token" in result:
-                        st.session_state.token = result.get("token")
-
-                        id_token = result["token"]["id_token"]
-                        payload = id_token.split(".")[1]
-                        payload += "=" * ((4 - len(payload) % 4) % 4)
-                        decoded_payload = json.loads(base64.urlsafe_b64decode(payload).decode("utf-8"))
-
-                        # Verify Google's signature/audience before using this account for private results.
-                        from google.oauth2 import id_token as google_id_token
-                        from google.auth.transport.requests import Request as GoogleAuthRequest
-                        decoded_payload = google_id_token.verify_oauth2_token(id_token, GoogleAuthRequest(), CLIENT_ID)
-                        if not decoded_payload.get("email_verified"):
-                            raise ValueError("Google email is not verified.")
-                        user_email = decoded_payload.get("email")
-                        user_name = decoded_payload.get("name", "Google User")
-
-                        profile = account_database().google(decoded_payload["sub"], user_email, user_name)
-                        apply_account(profile)
-
-                        # Clean up URL parameters after successful login
-                        if hasattr(st, "query_params"):
-                            st.query_params.clear()
-                        elif hasattr(st, "experimental_set_query_params"):
-                            st.experimental_set_query_params()
-
-                        time.sleep(0.5)
-                        st.rerun()
-                except Exception as e:
-                    st.error("Google sign-in could not be completed. " + cloud_store.safe_db_error(e))
-
-        elif st.session_state.auth_view == "Sign In":
+        # if st.session_state.auth_view == "Google Login":
+        #     st.subheader("Google Login")
+        #     st.write("Sign in securely with your Google account:")
+        #
+        #     if not CLIENT_ID or not CLIENT_SECRET or OAuth2Component is None:
+        #         pass  # Keep configuration details off the welcome page.
+        #     else:
+        #         try:
+        #             # Because this is now the default view, it will ALWAYS run when Google redirects back!
+        #             oauth2 = OAuth2Component(CLIENT_ID, CLIENT_SECRET, AUTHORIZE_URL, TOKEN_URL, TOKEN_URL, REVOKE_TOKEN_URL)
+        #
+        #             result = oauth2.authorize_button(
+        #                 name="Sign in with Google",
+        #                 icon="https://www.google.com/favicon.ico",
+        #                 redirect_uri="http://localhost:8501",
+        #                 scope="openid email profile",
+        #                 key="google_login",
+        #                 use_container_width=True
+        #             )
+        #
+        #             if result and "token" in result:
+        #                 st.session_state.token = result.get("token")
+        #
+        #                 id_token = result["token"]["id_token"]
+        #                 payload = id_token.split(".")[1]
+        #                 payload += "=" * ((4 - len(payload) % 4) % 4)
+        #                 decoded_payload = json.loads(base64.urlsafe_b64decode(payload).decode("utf-8"))
+        #
+        #                 # Verify Google's signature/audience before using this account for private results.
+        #                 from google.oauth2 import id_token as google_id_token
+        #                 from google.auth.transport.requests import Request as GoogleAuthRequest
+        #                 decoded_payload = google_id_token.verify_oauth2_token(id_token, GoogleAuthRequest(), CLIENT_ID)
+        #                 if not decoded_payload.get("email_verified"):
+        #                     raise ValueError("Google email is not verified.")
+        #                 user_email = decoded_payload.get("email")
+        #                 user_name = decoded_payload.get("name", "Google User")
+        #
+        #                 profile = account_database().google(decoded_payload["sub"], user_email, user_name)
+        #                 apply_account(profile)
+        #
+        #                 # Clean up URL parameters after successful login
+        #                 if hasattr(st, "query_params"):
+        #                     st.query_params.clear()
+        #                 elif hasattr(st, "experimental_set_query_params"):
+        #                     st.experimental_set_query_params()
+        #
+        #                 time.sleep(0.5)
+        #                 st.rerun()
+        #         except Exception as e:
+        #             st.error("Google sign-in could not be completed. " + cloud_store.safe_db_error(e))
+        #
+        if st.session_state.auth_view == "Sign In":
             st.subheader("Sign In")
             with st.form("signin_form"):
                 login_user = st.text_input("Username")
