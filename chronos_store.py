@@ -5,6 +5,8 @@ import hashlib
 import hmac
 import json
 import os
+import re
+from urllib.parse import quote, unquote
 import secrets
 import uuid
 from contextlib import contextmanager
@@ -25,12 +27,43 @@ def connected():
     return bool(database_url())
 
 
+class DatabaseConnectionError(RuntimeError):
+    """Connection-only error containing a redacted diagnostic."""
+
+
+def connection_diagnostic(exc, url):
+    # Never expose libpq's original error: it may embed the connection string.
+    from psycopg.conninfo import conninfo_to_dict
+    message = str(exc)
+    sensitive = [url]
+    try:
+        params = conninfo_to_dict(url)
+        for key in ('password', 'passfile', 'sslpassword', 'user', 'host', 'hostaddr', 'dbname'):
+            if params.get(key):
+                value = params[key]
+                sensitive.extend((value, quote(value, safe=''), unquote(value)))
+    except Exception:
+        # An invalid URL cannot safely be used to derive a credential list.
+        return 'Invalid connection URL. Paste only the complete postgres:// or postgresql:// URL into TIMESCALE_SERVICE_URL, without a psql command.'
+    for value in sorted(set(sensitive), key=len, reverse=True):
+        if value:
+            message = message.replace(value, '[redacted]')
+    message = re.sub(r"(?i)postgres(?:ql)?://[^\s]+", '[redacted URL]', message)
+    message = re.sub(r"(?i)(password|sslpassword)\s*=\s*(?:'[^']*'|\"[^\"]*\"|[^\s]+)", r'\1=[redacted]', message)
+    message = re.sub(r"[\"][^\"]*[\"]|'[^']*'", '[redacted]', message)
+    return ' '.join(message.split())[:600]
+
+
 @contextmanager
 def connect():
     if not connected():
-        raise RuntimeError('TigerData is not configured. Add TIMESCALE_SERVICE_URL to .env.')
+        raise RuntimeError('TigerData is not configured. Add TIMESCALE_SERVICE_URL to Streamlit Secrets or your local .env.')
     import psycopg
-    with psycopg.connect(database_url(), connect_timeout=20) as conn:
+    try:
+        conn = psycopg.connect(database_url(), connect_timeout=20)
+    except psycopg.Error as exc:
+        raise DatabaseConnectionError(connection_diagnostic(exc, database_url())) from None
+    with conn:
         yield conn
 
 
@@ -212,6 +245,8 @@ def safe_db_error(exc):
     """Human-safe, credential-free status for the app and for support requests."""
     if not connected():
         return 'Account database is not configured. Add TIMESCALE_SERVICE_URL to your hosting Secrets or environment variables, then restart the app.'
+    if isinstance(exc, DatabaseConnectionError):
+        return 'TigerData connection diagnostic: ' + str(exc)
     code = getattr(exc, 'sqlstate', None)
     if code == '42P01':
         return 'A database table is missing (42P01). Use Retry TigerData connection to initialise tables.'
